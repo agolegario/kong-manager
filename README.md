@@ -1,5 +1,3 @@
-# README.md
-
 ## Descrição
 
 Este projeto utiliza o Docker Compose para orquestrar um ambiente de desenvolvimento do Kong API Gateway com suporte a plugins customizados e banco de dados PostgreSQL.
@@ -60,3 +58,18 @@ Os plugins customizados devem ser colocados no diretório [`custom_plugins/`](cu
 2. Execute o comando abaixo para subir o ambiente:
    ```sh
    docker-compose up
+3. Execute o comando abaixo para baixar o ambiente:
+   ```sh
+   docker-compose down
+4. Como adicionar novos plugins
+   ```sh
+   1. Crie uma pasta dentro do diretorio /custom plugin/kong/plugins/[my-new-plugin] e adicione os arquivos handler.lua e schema.lua conforme especificação kong
+   2. Na variavel de ambiente do arquivo docker-compose.yaml KONG_PLUGINS adicione o nome da pasta de seu novo plugin exemplo KONG_PLUGINS: "bundled, sample-plugin, sample-plugin2,my-new-plugin"
+   3. Em seu ambiente havera 3 containers criados, exclua o container do kong [kong-manager-kong*] somente e execute novamente o docker compose up para recriar o container ja carregando o novo plugin
+   4. Esse docker compose cria um volume local para o banco de dados do postgress, isso evita que seja necessarios ficar novamente criando gateway services e rotas para testar o novo plugin
+5. Acessando a interface do kong manager
+   ```sh
+   Acesse o navegador em http://localhost:8002
+6. Consumindo uma api:
+   ```sh
+   Depois de criar um gateway service e adicionar ao menos uma rota, use alguma aplicação de sua preferencia Postman, HTTPie, Bruno ou Curl acessando http://localhost:8000/[path-to-service]
