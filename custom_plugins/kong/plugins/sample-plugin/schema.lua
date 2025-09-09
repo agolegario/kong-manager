@@ -33,7 +33,7 @@ local schema = {
           { at_least_one_of = { "request_header", "response_header" }, },
           -- We specify that both header-names cannot be the same
           { distinct = { "request_header", "response_header"} },
-        }d,
+        },
       },
     },
   },
