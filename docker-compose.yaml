@@ -20,6 +20,7 @@ services:
   kong:
     image: kong:latest
     environment:
+      KONG_LOG_LEVEL: debug
       KONG_DATABASE: postgres
       KONG_PG_HOST: db_postgres
       KONG_PG_USER: kong
@@ -33,7 +34,8 @@ services:
       KONG_PROXY_LISTEN: 0.0.0.0:8000
       KONG_ADMIN_GUI_LISTEN: 0.0.0.0:8002
       KONG_PORTAL_GUI_HOST: localhost:8002
-      KONG_PLUGINS: "bundled, sample-plugin, sample-plugin2"
+      KONG_TRUSTED_PLUGINS: "cert-validator"
+      KONG_PLUGINS: "bundled, cert-validator"
       KONG_LUA_PACKAGE_PATH: /usr/local/custom_plugins/?.lua;;
     ports:
       - "8000:8000" # Proxy
