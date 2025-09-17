@@ -9,12 +9,18 @@ local plugin = {
 
 function plugin:init_worker()
   kong.log.debug("cert-validator plugin initialized")
+
+  -- kong.ctx.shared.owner =  "documento_owner"
+
+
 end --]]
 
 
 
 function plugin:access(plugin_conf)
- 
+
+  
+  kong.ctx.shared.owner =  "documento_owner"
   -- LOAD CA CERTIFICATE AND PUBLIC KEY
   local ca_cert, err = x509.new("-----BEGIN CERTIFICATE-----\n"..plugin_conf.certificate.."\n-----END CERTIFICATE-----")
   if not ca_cert then
@@ -55,6 +61,7 @@ function plugin:access(plugin_conf)
     })
   end
 
+  -- VALIDATE ISSUER AND SUBJECTNAME
   local ok, err = client_cert:verify(ca_pub_key)
 
   if(not ok) then
@@ -67,6 +74,34 @@ function plugin:access(plugin_conf)
       }
     })
   end
+
+  local issuer_name = client_cert:get_issuer_name():find("CN").blob
+  if issuer_name ~= plugin_conf.issuer then
+    kong.log.err("Certificate issuer mismatch. Expected: ", plugin_conf.issuer, " Got: ", issuer_name)
+    return kong.response.exit(420, {
+      results={
+        code= "420",
+        userMessage="Certificate issuer mismatch. Expected: "..plugin_conf.issuer.." Got: "..issuer_name,
+        origin="kong"
+      }
+    })
+  end
+
+
+if plugin_conf.verify_owner_certificate then  
+  
+  local subject_name = client_cert:get_subject_name():find("CN").blob
+  if subject_name ~= kong.ctx.shared.owner then
+    kong.log.err("Certificate subject mismatch. Expected: ", kong.ctx.shared.owner, " Got: ", subject_name)
+    return kong.response.exit(420, {
+      results={
+        code= "420",
+        userMessage="Certificate subject mismatch. Expected: "..kong.ctx.shared.owner.." Got: "..subject_name,
+        origin="kong"
+      }
+    })
+  end
+end
 
 end --]]
 

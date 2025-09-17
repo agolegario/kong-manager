@@ -17,6 +17,9 @@ return {
           {
             inspect = {type = "boolean",default = false,},
           },
+          {
+            verify_owner_certificate = {type = "boolean",default = false,},
+          },
         },
       },
     },
